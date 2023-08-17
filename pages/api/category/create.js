@@ -35,5 +35,7 @@ export default async function create(req, res) {
     } catch (err) {
         console.log(err);
         return res.status(500).json({ err, message: 'Internal Server Error.' });
+    }finally {
+        await prisma.$disconnect();
     }
 }
