@@ -7,23 +7,45 @@ export default async function create(req, res) {
 
     const prisma = new PrismaClient()
 
-    const { title, content, catId } = req.body;
+    const { title, content, image, catId } = req.body;
 
     try {
-        const article = await prisma.article.create({
-            data: {
-                title,
-                content,
-                category: {
-                    connect: { id: catId },
-                },
-            },
+        const findCategory = await prisma.category.findUnique({
+            where: {id: parseInt(catId)}
         });
 
-        return res.status(201).json({
-            message: "Article created succesfully!",
-            article
-        })
+        if(findCategory){
+            const sameTitle = await prisma.article.findUnique({
+                where: {title : title}
+            });
+
+            if(!sameTitle){
+                const article = await prisma.article.create({
+                    data: {
+                        title,
+                        content,
+                        image,
+                        category: {
+                            connect: { id: catId },
+                        },
+                    },
+                });
+        
+                return res.status(201).json({
+                    message: "Article created succesfully!",
+                    article
+                })
+            }else{
+                return res.status(409).json({
+                    message: "An article with this title already exists!"
+                })
+            }
+            
+        }else{
+            return res.status(404).json({
+                message: "This category doesn't exist"
+            })
+        }        
 
     } catch (error) {
         console.log("the error is", error)
