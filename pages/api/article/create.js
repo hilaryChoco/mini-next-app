@@ -26,7 +26,7 @@ export default async function create(req, res) {
                         content,
                         image,
                         category: {
-                            connect: { id: catId },
+                            connect: { id: parseInt(catId) },
                         },
                     },
                 });
